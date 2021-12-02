@@ -23,7 +23,7 @@ public class Client {
         Socket socket = new Socket("127.0.0.1",8081);
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-        System.out.println("Send Request To Client:");
+        System.out.println("Send Request To Server:");
         Scanner scanner = new Scanner(System.in);
         String inputToServer = null;
         
