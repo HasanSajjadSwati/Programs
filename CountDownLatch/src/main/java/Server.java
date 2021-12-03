@@ -13,7 +13,7 @@ public class Server {
 
     public static void main(String[] args) throws IOException, InterruptedException {
        ServerSocket server = null;
-       CountDownLatch startSignal = new CountDownLatch(5);
+       CountDownLatch startSignal = new CountDownLatch(1);
         try {
             server = new ServerSocket(8081);
             server.setReuseAddress(true);
