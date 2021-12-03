@@ -13,7 +13,7 @@ public class Server {
 
     public static void main(String[] args) throws IOException, InterruptedException {
        ServerSocket server = null;
-       CountDownLatch startSignal = new CountDownLatch(1);
+       CountDownLatch startSignal = new CountDownLatch(5);
         try {
             server = new ServerSocket(8081);
             server.setReuseAddress(true);
@@ -21,11 +21,8 @@ public class Server {
                 System.out.println("Server Started!");
                 Socket client = server.accept();
                 System.out.println("New Client Connected!");
-                ClientHandler clientSocket = new ClientHandler(client,startSignal);
                 
-                Thread thread = new Thread(clientSocket);
-                thread.start();
-                startSignal.await();
+                new Thread(new ClientHandler(client,startSignal)).start();
                 
             }
         } catch (IOException e) {
