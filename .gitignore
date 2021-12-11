@@ -7,3 +7,6 @@
 /Memcached+Redis+ConcurrentHashMap with 50Million Entries/target/
 /Memcached, Redis, ConcurrentHashMap with 50Million Entries/target/
 /Memcached_Redis_ConcurrentHashMap_with_50Million_Entries/target/
+/OAuth_Login/target/
+/OAuthSpring-resourceServer/target/
+/OAuthSpring-authorizationServer/target/
