@@ -77,4 +77,9 @@ public class UserService {
         user.setToken(token);
         userRepository.save(user);
     }
+    public void expire(User user,int milliSeconds) throws InterruptedException {
+        Thread.sleep(milliSeconds);
+        user.setToken("");
+
+    }
 }
