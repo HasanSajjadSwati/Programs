@@ -15,10 +15,10 @@ public class userController {
     @Autowired
     private UserService userService;
 
+    private HttpHeaders headers = new HttpHeaders();
     @GetMapping("/product")
     public ResponseEntity<String> getProduct(){
-        User user = userService.getUserByUsernameAndPassword("user","123");
-        if(user.getToken().equals("asdasdqw312313213"))
+        if(userService.findByToken("asdasdqw3123132133"))
             return new ResponseEntity<>("Found",HttpStatus.OK);
         else
             return new ResponseEntity<>(null,HttpStatus.UNAUTHORIZED);
@@ -29,8 +29,8 @@ public class userController {
     public ResponseEntity<String> loginDetails(@RequestBody User user){
         if(userService.findByUsernameAndPassword(user.getUsername(), user.getPassword())){
             User newUser = userService.getUserByUsernameAndPassword(user.getUsername(), user.getPassword());
-            userService.setToken(newUser,"asdasdqw312313213");
-            HttpHeaders headers = new HttpHeaders();
+            userService.setToken(newUser,"asdasdqw3123132133");
+
             headers.set("Bearer",newUser.getToken());
             return new ResponseEntity<>(newUser.getToken(),headers, HttpStatus.OK);
         }
