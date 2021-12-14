@@ -1,12 +1,16 @@
 package com.hasansajjadswati.ResourceServer.controllers;
 
 import com.hasansajjadswati.ResourceServer.entities.User;
+import com.hasansajjadswati.ResourceServer.security.AES;
 import com.hasansajjadswati.ResourceServer.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.function.ServerRequest;
 
 
 @RestController
@@ -19,9 +23,11 @@ public class userController {
 
 
     @GetMapping("/product/{id}")
-    public ResponseEntity<String> getProduct(@RequestParam(value = "id", required = false, defaultValue = "0") String id, @RequestHeader(value="Authorization") String authHeader) throws InterruptedException {
+    public ResponseEntity<String> getProduct(@RequestParam(value = "id", required = false, defaultValue = "0") String id,
+                                             @RequestHeader(value="Authorization") String authHeader) throws InterruptedException {
             if(userService.findByToken(authHeader))
-                return new ResponseEntity<>(HttpStatus.OK);
+                return new ResponseEntity<>("Product Found",HttpStatus.OK);
+
             else if(!userService.findByToken(authHeader))
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
@@ -32,33 +38,19 @@ public class userController {
     @PostMapping("/login")
     public ResponseEntity<String> loginDetails(@RequestBody User user) throws InterruptedException {
 
-        String token = randomToken(20);
+        String token = userService.randomToken(20);
 
-        if(userService.findByUsernameAndPassword(user.getUsername(), user.getPassword())){
-            User currentUser = userService.getUserByUsernameAndPassword(user.getUsername(), user.getPassword());
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("Authorization",token);
+
+        if(userService.findByUsernameAndPassword(user.getUsername(), AES.encrypt(user.getPassword(),userService.getSecertKey()))){
+            User currentUser = userService.getUserByUsernameAndPassword(user.getUsername(), AES.encrypt(user.getPassword(),userService.getSecertKey()));
             userService.setToken(currentUser,token);
-            return new ResponseEntity<>("Login Successfull! Your Auth Token = " + token,HttpStatus.OK);
+
+            return ResponseEntity.ok().headers(responseHeaders).body("Login Successful!");
         }
         else
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-    }
-
-    public String randomToken(int n)
-    {
-
-        String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                + "0123456789"
-                + "abcdefghijklmnopqrstuvxyz";
-
-        StringBuilder sb = new StringBuilder(n);
-
-        for (int i = 0; i < n; i++) {
-            int index = (int)(AlphaNumericString.length() * Math.random());
-
-            sb.append(AlphaNumericString.charAt(index));
-        }
-
-        return sb.toString();
     }
 
 }
