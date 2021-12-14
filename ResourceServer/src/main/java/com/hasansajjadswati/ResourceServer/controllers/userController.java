@@ -35,8 +35,8 @@ public class userController {
         String token = randomToken(20);
 
         if(userService.findByUsernameAndPassword(user.getUsername(), user.getPassword())){
-            User newUser = userService.getUserByUsernameAndPassword(user.getUsername(), user.getPassword());
-            userService.setToken(newUser,token);
+            User currentUser = userService.getUserByUsernameAndPassword(user.getUsername(), user.getPassword());
+            userService.setToken(currentUser,token);
             return new ResponseEntity<>("Login Successfull! Your Auth Token = " + token,HttpStatus.OK);
         }
         else
