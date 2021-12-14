@@ -31,12 +31,34 @@ public class userController {
 
     @PostMapping("/login")
     public ResponseEntity<String> loginDetails(@RequestBody User user) throws InterruptedException {
+
+        String token = randomToken(20);
+
         if(userService.findByUsernameAndPassword(user.getUsername(), user.getPassword())){
             User newUser = userService.getUserByUsernameAndPassword(user.getUsername(), user.getPassword());
-            userService.setToken(newUser,"asdasdqw3123132133");
-            return new ResponseEntity<>("Login Successfull! Your Auth Token = asdasdqw3123132133",HttpStatus.OK);
+            userService.setToken(newUser,token);
+            return new ResponseEntity<>("Login Successfull! Your Auth Token = " + token,HttpStatus.OK);
         }
         else
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
+
+    public String randomToken(int n)
+    {
+
+        String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                + "0123456789"
+                + "abcdefghijklmnopqrstuvxyz";
+
+        StringBuilder sb = new StringBuilder(n);
+
+        for (int i = 0; i < n; i++) {
+            int index = (int)(AlphaNumericString.length() * Math.random());
+
+            sb.append(AlphaNumericString.charAt(index));
+        }
+
+        return sb.toString();
+    }
+
 }
