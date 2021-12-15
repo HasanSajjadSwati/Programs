@@ -1,9 +1,11 @@
 package com.hasansajjadswati.ResourceServer.services;
 
+import com.google.common.base.Stopwatch;
 import com.hasansajjadswati.ResourceServer.Repository.UserRepository;
 import com.hasansajjadswati.ResourceServer.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,9 @@ public class UserService {
     private UserRepository userRepository;
 
     private String secertKey = "springboot";
+    private Stopwatch stopwatch = Stopwatch.createUnstarted();
+    private long expiryTime;
+    private User currentUser;
 
     public Boolean findByUsernameAndPassword(String username, String password){
         try {
@@ -75,14 +80,12 @@ public class UserService {
         }
     }
 
-    public void setToken(User user, String token){
+    public void setToken(User user, String token,long expiryTime){
         user.setToken(token);
+        this.expiryTime = expiryTime;
+        currentUser = user;
+        stopwatch.start();
         userRepository.save(user);
-    }
-    public void expire(User user,int milliSeconds) throws InterruptedException {
-        Thread.sleep(milliSeconds);
-        user.setToken("");
-
     }
 
     public String randomToken(int n)
@@ -106,4 +109,20 @@ public class UserService {
     public String getSecertKey(){
         return secertKey;
     }
+
+    public boolean isExpired(){
+        if(stopwatch.isRunning()){
+            if(stopwatch.elapsed().toSeconds() >= expiryTime){
+                stopwatch.stop();
+                stopwatch.reset();
+                currentUser.setToken(null);
+                return true;
+            }
+            else
+                return false;
+        }
+        else
+            return true;
+    }
+
 }

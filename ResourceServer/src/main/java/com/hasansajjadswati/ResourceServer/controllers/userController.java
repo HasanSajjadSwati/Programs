@@ -1,5 +1,6 @@
 package com.hasansajjadswati.ResourceServer.controllers;
 
+import com.google.common.base.Stopwatch;
 import com.hasansajjadswati.ResourceServer.entities.User;
 import com.hasansajjadswati.ResourceServer.security.AES;
 import com.hasansajjadswati.ResourceServer.services.UserService;
@@ -14,22 +15,25 @@ import org.springframework.web.servlet.function.ServerRequest;
 
 
 @RestController
-@Transactional(timeout = 5)
 public class userController {
 
     @Autowired
     private UserService userService;
 
 
-
     @GetMapping("/product/{id}")
     public ResponseEntity<String> getProduct(@RequestParam(value = "id", required = false, defaultValue = "0") String id,
                                              @RequestHeader(value="Authorization") String authHeader) throws InterruptedException {
-            if(userService.findByToken(authHeader))
-                return new ResponseEntity<>("Product Found",HttpStatus.OK);
 
+            if(userService.findByToken(authHeader)){
+
+                if(!userService.isExpired())
+                    return new ResponseEntity<>("Product Found",HttpStatus.OK);
+                else
+                    return new ResponseEntity<>("Token Expired!",HttpStatus.BAD_REQUEST);
+            }
             else if(!userService.findByToken(authHeader))
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>("Invalid Token!",HttpStatus.UNAUTHORIZED);
 
             else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
@@ -45,8 +49,7 @@ public class userController {
 
         if(userService.findByUsernameAndPassword(user.getUsername(), AES.encrypt(user.getPassword(),userService.getSecertKey()))){
             User currentUser = userService.getUserByUsernameAndPassword(user.getUsername(), AES.encrypt(user.getPassword(),userService.getSecertKey()));
-            userService.setToken(currentUser,token);
-
+            userService.setToken(currentUser,token,15);
             return ResponseEntity.ok().headers(responseHeaders).body("Login Successful!");
         }
         else
