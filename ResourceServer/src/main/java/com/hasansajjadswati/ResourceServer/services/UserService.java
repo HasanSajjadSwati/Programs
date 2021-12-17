@@ -3,9 +3,12 @@ package com.hasansajjadswati.ResourceServer.services;
 import com.google.common.base.Stopwatch;
 import com.hasansajjadswati.ResourceServer.Repository.UserRepository;
 import com.hasansajjadswati.ResourceServer.entities.User;
+import com.hasansajjadswati.ResourceServer.security.AES;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StopWatch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,9 +83,9 @@ public class UserService {
         }
     }
 
-    public void setToken(User user, String token,long expiryTime){
+    public void setToken(User user, String token,long expiryTimeInSeconds){
         user.setToken(token);
-        this.expiryTime = expiryTime;
+        this.expiryTime = expiryTimeInSeconds;
         currentUser = user;
         stopwatch.start();
         userRepository.save(user);
@@ -123,6 +126,37 @@ public class UserService {
         }
         else
             return true;
+    }
+
+    public ResponseEntity<String> loginAndToken(User user){
+        String token = randomToken(20);
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("Authorization",token);
+
+        if(findByUsernameAndPassword(user.getUsername(), AES.encrypt(user.getPassword(), getSecertKey()))){
+            User currentUser = getUserByUsernameAndPassword(user.getUsername(), AES.encrypt(user.getPassword(), getSecertKey()));
+            setToken(currentUser,token,30);
+            return ResponseEntity.ok().headers(responseHeaders).body("Login Successful!");
+        }
+        else
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity<String> getProduct(String id, String authHeader){
+
+        if(findByToken(authHeader)){
+
+            if(!isExpired())
+                return new ResponseEntity<>("Product Found",HttpStatus.OK);
+            else
+                return new ResponseEntity<>("Token Expired!",HttpStatus.BAD_REQUEST);
+        }
+
+        else if(!findByToken(authHeader))
+            return new ResponseEntity<>("Invalid Token!",HttpStatus.UNAUTHORIZED);
+
+        else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
 }
