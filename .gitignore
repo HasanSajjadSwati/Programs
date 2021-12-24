@@ -10,3 +10,5 @@
 /OAuth_Login/target/
 /OAuthSpring-resourceServer/target/
 /OAuthSpring-authorizationServer/target/
+/mock-server/targetsrc/
+/MockServer2/target/
