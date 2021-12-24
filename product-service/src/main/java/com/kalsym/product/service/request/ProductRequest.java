@@ -29,7 +29,6 @@ import lombok.ToString;
 @ToString
 public class ProductRequest {
     private Product product;
-    private ProductReview productReview;
-    private ProductVariant productVariant;
-    private ProductVariantAvailable productVariantAvailable;
+    private List<ProductReview> productReview;
+    private List<ProductVariant> productVariant;
 }

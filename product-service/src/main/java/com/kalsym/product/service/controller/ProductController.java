@@ -256,21 +256,27 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }
     
+    
+    //A post Method for posting a product, List of Product Reviews, List of Product Variants along with a list of Variants Available
     @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpResponse> postStoreProductRequest(HttpServletRequest request, 
+    public ResponseEntity<HttpResponse> post_product_productReview_productVariant_productVariantAvailable(HttpServletRequest request, 
     @RequestBody ProductRequest bodyProductRequest) 
     {
         
         HttpResponse response = new HttpResponse(request.getRequestURI());
        
-        bodyProductRequest.getProductReview().setProduct(bodyProductRequest.getProduct());
-        bodyProductRequest.getProductVariant().setProduct(bodyProductRequest.getProduct());
-        bodyProductRequest.getProductVariantAvailable().setProductVariant(bodyProductRequest.getProductVariant());
-        bodyProductRequest.getProductVariantAvailable().setProduct(bodyProductRequest.getProduct());
         productRepository.save(bodyProductRequest.getProduct());
-        productReviewRepository.save(bodyProductRequest.getProductReview());
-        productVariantRepository.save(bodyProductRequest.getProductVariant());
-        productVariantAvailableRepository.save(bodyProductRequest.getProductVariantAvailable());
+        
+        for(ProductReview currentProductReviews : bodyProductRequest.getProductReview()){
+            currentProductReviews.setProduct(bodyProductRequest.getProduct());
+            productReviewRepository.save(currentProductReviews);
+        }
+        
+        for(ProductVariant currentProductVariant : bodyProductRequest.getProductVariant()){
+            currentProductVariant.setProduct(bodyProductRequest.getProduct());
+            productVariantRepository.save(currentProductVariant);
+        }
+
         response.setStatus(HttpStatus.CREATED);
         response.setData("Inserted");
         

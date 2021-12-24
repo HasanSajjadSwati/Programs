@@ -37,6 +37,8 @@ public class ProductVariant implements Serializable {
 
     private String description;
     
+
+    
     
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "productId", referencedColumnName = "id",nullable = false)
@@ -44,9 +46,9 @@ public class ProductVariant implements Serializable {
     @JsonIgnore
     Product product;
 
-//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    @JoinColumn(name = "productVariantId")
-//    private List<ProductVariantAvailable> productVariantsAvailable;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "productVariantId",referencedColumnName = "id")
+    private List<ProductVariantAvailable> productVariantsAvailable;
     
     
     private Integer sequenceNumber;
